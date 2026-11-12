@@ -4,7 +4,7 @@
 
 This project uses the **BDD100K (Berkeley DeepDrive 100K)** autonomous driving dataset to evaluate YOLO11 and RT-DETR object detection models.
 
-### 1. Download BDD100K
+#### 1. Download BDD100K
 
 Download the dataset from the official Berkeley DeepDrive website:
 
@@ -15,29 +15,21 @@ Required downloads:
 - **100K Images:** Contains the driving images used for training and evaluation.
 - **Labels:** Contains ground-truth object detection bounding boxes, class labels, and environmental metadata.
 
-We use the original 2018 annotations because the 2020 Detection Labels download returned JPG files instead of the expected JSON annotations.
+We use the original 2018 annotations because the 2020 Detection Labels download returned JPG files instead of the expected JSON annotations.  
+Make sure to rename the two downloaded files images and lables then proceed to zip (or leave already zipped) the files.
 
-### 2. Organize the Dataset
+#### 2. Organize the Dataset
 
 After downloading and extracting the files, organize them locally into the following structure before uploading to Google Drive:
 
 ```text
 BDD100K_Project/
 └── bdd100k_data/
-    ├── images/
-    │   ├── train/
-    │   │   └── *.jpg
-    │   └── val/
-    │       └── *.jpg
-    │
-    └── labels/
-        ├── train/
-        │   └── *.json
-        └── val/
-            └── *.json
+    ├── images.zip/
+    ├── labels.zip/
 ```
 
-### 3. Upload to Google Drive
+#### 3. Upload to Google Drive
 
 Upload the `BDD100K_Project` directory to the root of your Google Drive (`MyDrive`).
 
@@ -51,7 +43,7 @@ MyDrive/BDD100K_Project/bdd100k_data/
 
 ## Local Development Setup (VS Code)
 
-### 1. Create a Virtual Environment
+#### 1. Create a Virtual Environment
 
 From the project root, create a Python virtual environment:
 
@@ -59,7 +51,7 @@ From the project root, create a Python virtual environment:
 python3 -m venv .venv
 ```
 
-### 2. Activate the Virtual Environment
+#### 2. Activate the Virtual Environment
 
 **macOS / Linux:**
 
@@ -73,9 +65,7 @@ source .venv/bin/activate
 .venv\Scripts\Activate.ps1
 ```
 
-Once activated, your terminal should display `(.venv)`.
-
-### 3. Install Dependencies
+#### 3. Install Dependencies
 
 Upgrade pip and install the project dependencies:
 
@@ -84,7 +74,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Configure VS Code
+#### 4. Configure VS Code
 
 1. Open the Command Palette (`Ctrl+Shift+P` on Windows/Linux or `Cmd+Shift+P` on macOS).
 2. Search for **Python: Select Interpreter**.
@@ -93,9 +83,7 @@ pip install -r requirements.txt
 This ensures VS Code uses your project's virtual environment.
 
 
-### 7. Reusing the Environment
-
-You only need to create the environment once.
+#### 7. Reusing the Environment
 
 For future development sessions, activate it again:
 
