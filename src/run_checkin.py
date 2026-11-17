@@ -2,6 +2,7 @@
 
 Example:
   python -m src.run_checkin --images /path/images.zip --labels /path/labels.zip
+  python -m src.run_checkin --subset data/bdd100k_subset --split test
 The output does NOT contain a score until the actual model runs successfully.
 """
 
@@ -13,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.bdd100k import CLASSES, extract_validation_subset, load_annotations
+from src.dataset import load_eval_samples
 from src.evaluation import evaluate
 from src.inference import load_model, predict_samples
 
@@ -30,10 +32,13 @@ def write_results(path, record):
 
 def build_parser():
     parser = argparse.ArgumentParser(description="CS117 BDD100K measured baseline")
-    parser.add_argument("--images", required=True, help="BDD100K images ZIP")
-    parser.add_argument("--labels", required=True, help="BDD100K labels JSON or ZIP")
+    parser.add_argument("--subset", help="Prepared subset dir (src.prepare_subset); "
+                        "uses splits/<split>.txt and ignores --images/--labels/--count")
+    parser.add_argument("--images", help="BDD100K images ZIP")
+    parser.add_argument("--labels", help="BDD100K labels JSON or ZIP")
     parser.add_argument("--model", default="yolo11m.pt", help="yolo11m.pt or rtdetr-l.pt")
-    parser.add_argument("--split", default="val", choices=("train", "val", "test"))
+    parser.add_argument("--split", default=None, choices=("train", "val", "test"),
+                        help="default: test with --subset, else val")
     parser.add_argument("--count", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--imgsz", type=int, default=640)
@@ -50,15 +55,23 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.count <= 0 or args.imgsz <= 0:
         parser.error("count and imgsz must be positive")
-    image_path = Path(args.images)
-    label_path = Path(args.labels)
-    if not image_path.is_file() or not label_path.exists():
-        parser.error("Provide accessible --images ZIP and --labels JSON/ZIP/directory")
-
-    annotations = load_annotations(label_path, split=args.split)
-    samples = extract_validation_subset(
-        image_path, annotations, args.cache_dir, count=args.count,
-        seed=args.seed, split=args.split, manifest_path=args.manifest)
+    if args.subset:
+        args.split = args.split or "test"
+        samples = load_eval_samples(args.subset, args.split)
+        image_path, label_path = Path(args.subset), Path(args.subset)
+        args.manifest = f"splits/{args.split}.txt"
+    else:
+        args.split = args.split or "val"
+        if not args.images or not args.labels:
+            parser.error("Provide --subset, or both --images and --labels")
+        image_path = Path(args.images)
+        label_path = Path(args.labels)
+        if not image_path.is_file() or not label_path.exists():
+            parser.error("Provide accessible --images ZIP and --labels JSON/ZIP/directory")
+        annotations = load_annotations(label_path, split=args.split)
+        samples = extract_validation_subset(
+            image_path, annotations, args.cache_dir, count=args.count,
+            seed=args.seed, split=args.split, manifest_path=args.manifest)
     model = load_model(args.model)
     predictions, timing = predict_samples(model, samples, imgsz=args.imgsz, device=args.device)
     metrics = evaluate(samples, predictions)

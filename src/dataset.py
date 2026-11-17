@@ -423,3 +423,20 @@ def load_split(data_root, split, splits_dir="splits"):
     names = [n for n in Path(splits_dir, f"{split}.txt").read_text().split() if n]
     images = [data_root / "images" / split / n for n in names]
     return get_labels_for_images(data_root / "labels" / split, images)
+
+
+def load_eval_samples(data_root, split, splits_dir="splits"):
+    """Like load_split, but in the format evaluate() and predict_samples() use.
+
+    Returns dicts with name, image_path and targets (shared-class boxes).
+    """
+    from src.bdd100k import _annotated_objects
+
+    return [
+        {
+            "name": sample["image_path"].name,
+            "image_path": str(sample["image_path"]),
+            "targets": _annotated_objects(sample["image_annotations"].get("labels")),
+        }
+        for sample in load_split(data_root, split, splits_dir)
+    ]
