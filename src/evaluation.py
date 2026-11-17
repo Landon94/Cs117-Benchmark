@@ -5,14 +5,7 @@ We do not implement COCO's crowd, area-range, or multi-maxDet breakdown.
 Report the metric with these limitations, rather than as official COCOeval.
 """
 
-def evaluate(samples, predictions, classes=None):
-    """Return an auditable scalar mAP and per-class AP by IoU threshold."""
-    if classes is None:
-        classes = sorted({
-            obj["category"]
-            for sample in samples
-            for obj in sample["targets"]
-        })
+from src.bdd100k import CLASSES
 
 IOU_THRESHOLDS = tuple(round(0.50 + i * 0.05, 2) for i in range(10))
 
