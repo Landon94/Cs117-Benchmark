@@ -1,45 +1,34 @@
 # Cs117-Benchmark
 
-## Dataset Setup — BDD100K
+## Dataset Setup — BDD100K subset
 
-This project uses the **BDD100K (Berkeley DeepDrive 100K)** autonomous driving dataset to evaluate YOLO11 and RT-DETR object detection models.
+We use a fixed subset of **BDD100K** (seed 42): 5,000 train and 1,000 val images from the official train split, and 1,000 held-out test images from the official val split. The file lists are in `splits/*.txt`. Everyone must use the same lists.
 
-#### 1. Download BDD100K
+Only one person builds the subset. Everyone else uses the shared zip.
 
-Download the dataset from the official Berkeley DeepDrive website:
+#### Build the subset (once)
 
-**[BDD100K Official Download Page](http://bdd-data.berkeley.edu/download.html)**
+1. Download the Kaggle zip (about 7.6 GB):
 
-Required downloads:
-
-- **100K Images:** Contains the driving images used for training and evaluation.
-- **Labels:** Contains ground-truth object detection bounding boxes, class labels, and environmental metadata.
-
-We use the original 2018 annotations because the 2020 Detection Labels download returned JPG files instead of the expected JSON annotations.  
-Make sure to rename the two downloaded files images and lables then proceed to zip (or leave already zipped) the files.
-
-#### 2. Organize the Dataset
-
-After downloading and extracting the files, organize them locally into the following structure before uploading to Google Drive:
-
-```text
-BDD100K_Project/
-└── bdd100k_data/
-    ├── images.zip/
-    ├── labels.zip/
+```bash
+curl -L -o ~/Downloads/solesensei_bdd100k.zip https://www.kaggle.com/api/v1/datasets/download/solesensei/solesensei_bdd100k
 ```
 
-#### 3. Upload to Google Drive
+2. Run the script from the repo root (needs `pip install -r requirements.txt`):
 
-Upload the `BDD100K_Project` directory to the root of your Google Drive (`MyDrive`).
-
-The dataset should be accessible at:
-
-```text
-MyDrive/BDD100K_Project/bdd100k_data/
+```bash
+python -m src.prepare_subset ~/Downloads/solesensei_bdd100k.zip
 ```
 
+This writes `data/bdd100k_subset.zip` (about 440 MB, git-ignored).
 
+3. Upload `bdd100k_subset.zip` to Google Drive at `MyDrive/BDD100K_Project/bdd100k_subset.zip` and share the folder with the team.
+
+#### Use the subset (everyone, in Colab)
+
+The notebook mounts Drive, unzips the subset to local Colab disk, and calls `load_split(...)`. Nobody else needs the full dataset.
+
+Labels are BDD100K 2018 format. Category names are `bike` and `motor`, not COCO's `bicycle` and `motorcycle`. Map them before scoring.
 
 ## Local Development Setup (VS Code)
 
