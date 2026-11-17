@@ -19,7 +19,7 @@ class TestCheckinRunner(unittest.TestCase):
     def test_parser_defaults(self):
         args = build_parser().parse_args(["--images", "images.zip", "--labels", "labels.zip"])
         self.assertEqual((args.split, args.count, args.seed, args.model),
-                         ("val", 1000, 42, "yolo11m.pt"))
+                         (None, 1000, 42, "yolo11m.pt"))
 
 
 if __name__ == "__main__":
