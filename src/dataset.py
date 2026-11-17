@@ -411,3 +411,15 @@ def create_test_split_from_zip(
         local_labels,
         selected_paths,
     )
+
+
+def load_split(data_root, split, splits_dir="splits"):
+    """Load a prepared subset split ("train", "val" or "test").
+
+    data_root holds images/<split>/ and labels/<split>/ from bdd100k_subset.zip.
+    The filename list in splits/<split>.txt is the source of truth.
+    """
+    data_root = Path(data_root)
+    names = [n for n in Path(splits_dir, f"{split}.txt").read_text().split() if n]
+    images = [data_root / "images" / split / n for n in names]
+    return get_labels_for_images(data_root / "labels" / split, images)
