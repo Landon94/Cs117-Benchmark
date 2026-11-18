@@ -1,0 +1,4 @@
+Earlier Colab run. The check-in uses the later runs saved in yolo11m_test.json and rtdetr_l_test.json.
+
+yolo11m mAP@0.5:0.95 = 0.2056 | mean ms/img = 13.259451277004132
+rtdetr_l mAP@0.5:0.95 = 0.2268 | mean ms/img = 38.86405169800082
