@@ -46,6 +46,31 @@ class TestBDD100K(unittest.TestCase):
             self.assertIn("example.jpg", annotations)
             self.assertEqual(annotations["example.jpg"][0]["category"], "person")
 
+    def test_legacy_image_labels_with_fixed_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            labels = root / "labels.zip"
+            images = root / "images.zip"
+            manifest = root / "test.txt"
+            manifest.write_text("example.jpg\n")
+            with zipfile.ZipFile(labels, "w") as z:
+                z.writestr("100k/val/example.json", json.dumps({"name": "example", "frames": [{
+                    "objects": [{"category": "bike", "box2d": {
+                        "x1": 1, "y1": 2, "x2": 3, "y2": 4,
+                    }}],
+                }]}))
+            with zipfile.ZipFile(images, "w") as z:
+                z.writestr("100k/val/example.jpg", b"image")
+
+            annotations = load_annotations(labels, split="val")
+            samples = extract_validation_subset(
+                images, annotations, root / "out", count=1, split="val", manifest_path=manifest,
+            )
+            self.assertEqual(samples[0]["name"], "example.jpg")
+            self.assertEqual(samples[0]["targets"], [
+                {"category": "bicycle", "bbox": [1.0, 2.0, 3.0, 4.0]},
+            ])
+
 
 if __name__ == "__main__":
     unittest.main()

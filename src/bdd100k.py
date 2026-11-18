@@ -53,20 +53,29 @@ def _annotated_objects(labels):
     return parsed
 
 
+def _image_name_from_label(filename):
+    name = PurePosixPath(filename).name
+    if name.lower().endswith(".json"):
+        name = name[:-5]
+    if not name.lower().endswith((".jpg", ".jpeg")):
+        name += ".jpg"
+    return name
+
+
 def _parse_document(doc, filename):
     """Return name -> target boxes for an aggregate or single-image JSON."""
     if isinstance(doc, dict):
-        if "frames" in doc and isinstance(doc["frames"], list):
-            records = doc["frames"]
+        frames = doc.get("frames")
+        if isinstance(frames, list):
+            if len(frames) == 1 and isinstance(frames[0], dict) and "objects" in frames[0]:
+                # Legacy image annotations store the name outside the frame.
+                name = _image_name_from_label(doc.get("name") or filename)
+                return {name: _annotated_objects(frames[0]["objects"])}
+            records = frames
         elif "name" in doc:
             records = [doc]
         elif "labels" in doc:
-            base = PurePosixPath(filename).name
-            if base.lower().endswith(".json"):
-                base = base[:-5]
-            if not base.lower().endswith((".jpg", ".jpeg")):
-                base += ".jpg"
-            records = [{"name": base, "labels": doc["labels"]}]
+            records = [{"name": _image_name_from_label(filename), "labels": doc["labels"]}]
         else:
             raise ValueError(f"Unsupported label document: {filename}")
     elif isinstance(doc, list):
